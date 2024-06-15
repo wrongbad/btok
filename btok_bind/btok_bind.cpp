@@ -10,13 +10,11 @@
 namespace nb = nanobind;
 using namespace nb::literals;
 
-NB_MODULE(btok_cpp, m) {
-    m.def("add", [](int a, int b) { return a + b; }, "a"_a, "b"_a);
-
+NB_MODULE(btok_bind, m)
+{
     using Tokenizer = btok::Tokenizer;
     nb::class_<Tokenizer>(m, "Tokenizer")
         .def(nb::init())
-        // .def(nb::init<nb::bytes>(), "tokenizer_pack"_a)
         .def("__init__", [] ( Tokenizer * self, nb::bytes pack) { 
             new (self) Tokenizer(pack.c_str(), pack.size());
         }, "tokenizer_pack"_a)
@@ -25,7 +23,7 @@ NB_MODULE(btok_cpp, m) {
         }, "token"_a)
         .def("num_tokens", &Tokenizer::num_tokens)
         .def("token", [] (Tokenizer const& self, int i) {
-            auto & t = self.token(i);
+            auto const& t = self.token(i);
             return nb::bytes(t.data(), t.size());
         }, "i"_a)
         .def("encode", [] (Tokenizer const& self, nb::bytes text) {
@@ -55,7 +53,11 @@ NB_MODULE(btok_cpp, m) {
 
     using Trainer = btok::Trainer;
     nb::class_<Trainer>(m, "Trainer")
-        .def(nb::init<int>(), "n_tokens"_a)
+        .def(nb::init<int, bool, bool>(), 
+            "n_tokens"_a,
+            "whitespace_barrier"_a = false,
+            "whitespace_unigram"_a = true
+        )
         .def("add_token", [] (Trainer & self, nb::bytes tok) {
             self.add_token({tok.c_str(), tok.size()});
         }, "token"_a)
@@ -68,6 +70,5 @@ NB_MODULE(btok_cpp, m) {
             return self.update({data.c_str(), data.size()}, add);
         }, "data"_a, "tokens_to_add"_a = 1)
         .def_prop_ro("tokenizer", [] (Trainer & self) { return self.tokenizer; })
-        // .def_prop_ro("tokenizer", &Trainer::tokenizer)
         ;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <cctype>
 
 #include "btok/tokenizer.h"
 
@@ -8,13 +9,20 @@ namespace btok {
 
 struct Trainer
 {
-    int const max_tokens;
+    int max_tokens;
+    bool whitespace_barrier;
+    bool whitespace_unigram;
 
     btok::Tokenizer tokenizer;
     std::vector<int> matrix;
 
-    Trainer(int n_tokens)
-    :   max_tokens(n_tokens)
+    Trainer(
+        int n_tokens, 
+        bool whitespace_barrier=false,
+        bool whitespace_unigram=true)
+    :   max_tokens(n_tokens),
+        whitespace_barrier(whitespace_barrier),
+        whitespace_unigram(whitespace_unigram)
     {
         for(int i=0 ; i<256 ; i++)
         {
@@ -54,6 +62,19 @@ struct Trainer
             int max_v = 0;
             for(int i=0 ; i<matrix.size() ; i++)
             {
+                int l = i % ntok;
+                int r = i / ntok;
+                if(whitespace_unigram)
+                {
+                    if(l<255 && std::isspace(l)) continue;
+                    if(r<255 && std::isspace(r)) continue;
+                }
+                else if(whitespace_barrier)
+                {
+                    // if(token(l).size() > 1 && std::isspace(token(l).back())) continue;
+                    // if(token(r).size() > 1 && std::isspace(token(r).front())) continue;
+                    if(std::isspace(token(r)[0])) continue;
+                }
                 if(matrix[i] > max_v)
                 {
                     max_v = matrix[i];

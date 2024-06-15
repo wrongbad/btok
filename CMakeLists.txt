@@ -33,7 +33,7 @@ find_package(Python 3.8
 find_package(nanobind CONFIG REQUIRED)
 
 nanobind_add_module(
-  btok_cpp
+  btok_bind
 
   # Target the stable ABI for Python 3.12+, which reduces
   # the number of binary wheels that must be built. This
@@ -48,14 +48,14 @@ nanobind_add_module(
   # reusing a shared libnanobind across libraries
   NB_STATIC
 
-  nanobind/btok.cpp
+  btok_bind/btok_bind.cpp
 )
 
 target_include_directories(
-    btok_cpp
+    btok_bind
     PRIVATE
     src/btok/include
 )
 
 # Install directive for scikit-build-core
-install(TARGETS btok_cpp LIBRARY DESTINATION btok)
+install(TARGETS btok_bind LIBRARY DESTINATION btok)

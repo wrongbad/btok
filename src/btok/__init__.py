@@ -1,1 +1,1 @@
-from .btok_cpp import Tokenizer, Trainer
+from .btok_bind import Tokenizer, Trainer

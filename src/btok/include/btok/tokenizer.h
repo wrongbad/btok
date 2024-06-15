@@ -51,7 +51,7 @@ struct Tokenizer
         tokens.push_back(std::move(token));
 
         int node = 0;
-        for(int i=0 ; i<tokens[tok_id].size() ; i++)
+        for(size_t i=0 ; i<tokens[tok_id].size() ; i++)
         {
             uint8_t c = tokens[tok_id][i];
             if(tree[node].next[c] < 0)
@@ -93,7 +93,7 @@ struct Tokenizer
             }
             else if(token >= 0)
             {
-                if(err = put_tok(token)) { return err; }
+                if((err = put_tok(token))) { return err; }
                 i = token_end;
                 node = 0;
                 token = -1;
@@ -107,7 +107,7 @@ struct Tokenizer
         int match = tree[node].token_id;
         if(match >= 0)
         {
-            if(err = put_tok(match)) { return err; }
+            if((err = put_tok(match))) { return err; }
         }
         return 0;
     }
@@ -116,7 +116,6 @@ struct Tokenizer
     // return negative if failed
     int encode(char const* str, int str_len, int * out, int out_len) const
     {
-        bool overflow = false;
         int out_fill = 0;
         int err = encode(str, str_len, [&] (int tok) {
             if(out_fill >= out_len) { return (int)ERR_OVERFLOW; }
@@ -158,7 +157,7 @@ struct Tokenizer
     std::vector<char> pack() const
     {
         std::vector<char> pack;
-        for(int i=0 ; i<tokens.size() ; i++)
+        for(size_t i=0 ; i<tokens.size() ; i++)
         {
             char len = char(uint8_t(tokens[i].size()));
             pack.push_back(len);
